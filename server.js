@@ -13,8 +13,18 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Space Pirates!" });
 });
+
+// cube dimensions
+app.get("/cubeDimensions", (req, res) => {
+  res.json({ dimensions: {
+    x: 1.3,
+    y: 1.3,
+    z: 1.3
+  } });
+});
+
 // set port, listen for requests
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
