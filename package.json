@@ -1,0 +1,25 @@
+{
+  "name": "space-pirates-server",
+  "version": "1.0.0",
+  "description": "Backend service for Space Pirates",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cityplanners/space-pirates-server.git"
+  },
+  "author": "cityplanners",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cityplanners/space-pirates-server/issues"
+  },
+  "homepage": "https://github.com/cityplanners/space-pirates-server#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.18.0"
+  }
+}
