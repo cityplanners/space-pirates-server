@@ -1,106 +1,40 @@
-use std::time::Duration;
+use tonic::{transport::Server, Request, Response, Status};
 
-use kafka::error::Error as KafkaError;
-use kafka::producer::{Producer, Record, RequiredAcks};
-use kafka::consumer::{Consumer, FetchOffset, GroupOffsetStorage};
+use hello_world::greeter_server::{Greeter, GreeterServer};
+use hello_world::{HelloReply, HelloRequest};
 
-/// This program demonstrates sending single message through a
-/// `Producer`.  This is a convenient higher-level client that will
-/// fit most use cases.
-fn main() {
-    env_logger::init();
+pub mod hello_world {
+    tonic::include_proto!("helloworld");
+}
 
-    let broker = "localhost:9092";
-    let topic = "my-topic";
+#[derive(Debug, Default)]
+pub struct MyGreeter {}
 
-    let data = "hello, kafka".as_bytes();
+#[tonic::async_trait]
+impl Greeter for MyGreeter {
+    async fn say_hello(
+        &self,
+        request: Request<HelloRequest>,
+    ) -> Result<Response<HelloReply>, Status> {
+        println!("Got a request: {:?}", request);
 
-    if let Err(e) = produce_message(data, topic, vec![broker.to_owned()]) {
-        println!("Failed producing messages: {}", e);
-    }
+        let reply = hello_world::HelloReply {
+            message: format!("Hello {}!", request.into_inner().name).into(),
+        };
 
-    let broker = "localhost:9092".to_owned();
-    let topic = "my-topic".to_owned();
-    let group = "my-group".to_owned();
-
-    if let Err(e) = consume_messages(group, topic, vec![broker]) {
-        println!("Failed consuming messages: {}", e);
+        Ok(Response::new(reply))
     }
 }
 
-fn produce_message<'a, 'b>(
-    data: &'a [u8],
-    topic: &'b str,
-    brokers: Vec<String>,
-) -> Result<(), KafkaError> {
-    println!("About to publish a message at {:?} to: {}", brokers, topic);
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let addr = "[::1]:50051".parse()?;
+    let greeter = MyGreeter::default();
 
-    // ~ create a producer. this is a relatively costly operation, so
-    // you'll do this typically once in your application and re-use
-    // the instance many times.
-    let mut producer = Producer::from_hosts(brokers)
-        // ~ give the brokers one second time to ack the message
-        .with_ack_timeout(Duration::from_secs(1))
-        // ~ require only one broker to ack the message
-        .with_required_acks(RequiredAcks::One)
-        // ~ build the producer with the above settings
-        .create()?;
-
-    // ~ now send a single message.  this is a synchronous/blocking
-    // operation.
-
-    // ~ we're sending 'data' as a 'value'. there will be no key
-    // associated with the sent message.
-
-    // ~ we leave the partition "unspecified" - this is a negative
-    // partition - which causes the producer to find out one on its
-    // own using its underlying partitioner.
-    producer.send(&Record {
-        topic,
-        partition: -1,
-        key: (),
-        value: data,
-    })?;
-
-    // ~ we can achieve exactly the same as above in a shorter way with
-    // the following call
-    producer.send(&Record::from_value(topic, data))?;
+    Server::builder()
+        .add_service(GreeterServer::new(greeter))
+        .serve(addr)
+        .await?;
 
     Ok(())
-}
-
-fn consume_messages(group: String, topic: String, brokers: Vec<String>) -> Result<(), KafkaError> {
-    let mut con = Consumer::from_hosts(brokers)
-        .with_topic(topic)
-        .with_group(group)
-        .with_fallback_offset(FetchOffset::Earliest)
-        .with_offset_storage(GroupOffsetStorage::Kafka)
-        .create()?;
-
-    loop {
-        let mss = con.poll()?;
-        if mss.is_empty() {
-            println!("No messages available right now.");
-            return Ok(());
-        }
-
-        let mut last_offset: i64 = -1;
-
-        for ms in mss.iter() {
-            for m in ms.messages() {
-                if last_offset != m.offset {
-                    println!(
-                        "{}:{}@{}: {:?}",
-                        ms.topic(),
-                        ms.partition(),
-                        m.offset,
-                        std::str::from_utf8(m.value).unwrap()
-                    );
-                }
-                last_offset = m.offset;
-            }
-            let _ = con.consume_messageset(ms);
-        }
-        con.commit_consumed()?;
-    }
 }
