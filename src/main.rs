@@ -11,10 +11,6 @@ use tonic::{Request, Response, Status, Streaming};
 use chat::chat_req_server::{ChatReq, ChatReqServer};
 use chat::{Empty, Msg, Req};
 
-pub mod hello_world {
-    tonic::include_proto!("helloworld");
-}
-
 pub mod chat {
     tonic::include_proto!("chat");
 }
