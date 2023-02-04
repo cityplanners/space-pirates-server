@@ -16,6 +16,7 @@ on:
   pull_request:
     types:
       - synchronize
+      - opened
 
 env:
   AWS_REGION: us-west-2                           # set this to your preferred AWS region, e.g. us-west-1
