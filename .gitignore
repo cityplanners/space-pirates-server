@@ -25,3 +25,5 @@ pnpm-debug.log*
 # Added by cargo
 
 /target
+
+rusty-tags.vi

@@ -6,5 +6,36 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum = "0.7.4"
-tokio = { version = "1.36.0", features = ["rt-multi-thread"] }
+askama = { version = "0.12.1", features = ["with-axum"] }
+askama_axum = "0.4.0"
+async-trait = "0.1.83"
+axum = { version = "0.7.5", features = ["json"] }
+axum-login = "0.16.0"
+axum-messages = "0.7.0"
+http = "1.0.0"
+hyper = "1.0.1"
+password-auth = "1.0.0"
+serde = "1.0.217"
+time = "0.3.37"
+tokio = { version = "1.36.0", features = ["full"] }
+tower = "0.4.13"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tower-http = { version = "0.6", features = ["compression-gzip", "cors"]}
+tower-sessions = { version = "0.14", features = ["default", "private", "signed"] }
+tower-sessions-surrealdb-store = { version = "*", features = ["surrealdb-nightly"], default-features = false }
+thiserror = "1.0.56"
+postgres = "0.19.9"
+toml = "0.8.19"
+log = "0.4.22"
+sqlx = { version = "0.8.3", features = ["runtime-tokio", "tls-rustls", "postgres"] }
+tower-sessions-core = "0.14.0"
+surrealdb-nightly = { version = "^2.0.20240916", optional = true }
+surrealdb = { version = "2.3.5", optional = true }
+
+[features]
+default = ["surrealdb"]
+surrealdb = ["dep:surrealdb"]
+surrealdb-nightly = ["dep:surrealdb-nightly"]
+
+[dev-dependencies]
+surrealdb = { version = "^2.0.0", features = ["kv-mem"] }
