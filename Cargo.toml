@@ -10,12 +10,13 @@ axum = "0.8.4"
 axum-login = "0.17.0"
 axum-messages = "0.8.0"
 faker_rand = "0.1.1"
+password-auth = "1.0.0"
 rand = "0.8.5"
 serde = { version = "1.0.219", features = ["derive"] }
-surrealdb = "2.3.5"
+surrealdb = { version = "2.3.5", features = ["kv-mem"] }
 thiserror = "2.0.12"
 time = "0.3.41"
 tokio = { version = "1.45.1", features = ["signal"] }
 tower = "0.5.2"
 tower-sessions = "0.14.0"
-tower-sessions-surrealdb-store = { version = "0.6.0", features = ["surrealdb-nightly"], default-features = false }
+tower-sessions-surrealdb-store = { version = "0.6.0" }

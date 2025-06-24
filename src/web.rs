@@ -2,4 +2,6 @@ pub use app::App;
 
 mod app;
 mod auth;
-mod protected;
+pub mod error;
+pub mod protected;
+mod routes;
